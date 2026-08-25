@@ -1,122 +1,83 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useState, useEffect } from 'react';
+import './App.css';
+
+const WORDS = ["ENTERPRISE", "REACT", "TYPESCRIPT", "DEVELOPER", "KUBERNETES", "POSTGRESQL", "DOCKER"];
+const MAX_ATTEMPTS = 6;
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [word, setWord] = useState("");
+  const [guessedLetters, setGuessedLetters] = useState<Set<string>>(new Set());
+  
+  useEffect(() => {
+    startNewGame();
+  }, []);
+
+  const startNewGame = () => {
+    const randomWord = WORDS[Math.floor(Math.random() * WORDS.length)];
+    setWord(randomWord);
+    setGuessedLetters(new Set());
+  };
+
+  const guessLetter = (letter: string) => {
+    if (guessedLetters.has(letter) || isGameOver || isGameWon) return;
+    setGuessedLetters(prev => new Set(prev).add(letter));
+  };
+
+  const wrongGuesses = Array.from(guessedLetters).filter(letter => !word.includes(letter)).length;
+  const attemptsLeft = MAX_ATTEMPTS - wrongGuesses;
+  
+  const isGameWon = word && word.split('').every(letter => guessedLetters.has(letter));
+  const isGameOver = attemptsLeft <= 0;
+
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
+
+  if (!word) return null;
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div className="app-container">
+      <div className="hangman-card">
+        
+        <div className="header">
+          <h1>Enterprise Hangman</h1>
+          <p>Crack the code before you run out of attempts!</p>
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+        <div className="attempts-left">
+          Attempts left: <span>{attemptsLeft}</span>
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+        <div className="word-display">
+          {word.split('').map((letter, index) => (
+            <div key={index} className="letter-box">
+              {guessedLetters.has(letter) || isGameOver ? letter : ""}
+            </div>
+          ))}
+        </div>
+
+        {isGameWon && <div className="status-message won">🎉 Mission Accomplished! You guessed it!</div>}
+        {isGameOver && <div className="status-message lost">💀 Game Over! The word was {word}.</div>}
+
+        <div className="keyboard">
+          {alphabet.map(letter => (
+            <button
+              key={letter}
+              className="key-btn"
+              onClick={() => guessLetter(letter)}
+              disabled={guessedLetters.has(letter) || isGameOver || isGameWon}
+            >
+              {letter}
+            </button>
+          ))}
+        </div>
+
+        {(isGameOver || isGameWon) && (
+          <button className="reset-btn" onClick={startNewGame}>
+            Play Again
+          </button>
+        )}
+      </div>
+    </div>
+  );
 }
 
-export default App
+export default App;
