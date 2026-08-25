@@ -10,5 +10,5 @@
     "dev": "cd frontend && npm run dev"
   },
   "author": "Venkatesh",
-  "license": "MIT"
+  "license": "UNLICENSED"
 }
