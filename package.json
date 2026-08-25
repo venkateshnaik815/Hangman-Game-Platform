@@ -1,0 +1,14 @@
+{
+  "name": "hangman-game-platform",
+  "version": "1.0.0",
+  "description": "Hangman Game Platform",
+  "main": "index.js",
+  "scripts": {
+    "start": "docker-compose up -d",
+    "build": "cd frontend && npm install && npm run build && cd ../backend && ./gradlew build",
+    "install": "cd frontend && npm install",
+    "dev": "cd frontend && npm run dev"
+  },
+  "author": "Venkatesh",
+  "license": "MIT"
+}
